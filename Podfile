@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-# platform :ios, '17.0'
+platform :ios, '17.0'
 
 target 'GitHubViewer' do
   # Comment the next line if you don't want to use dynamic frameworks
@@ -7,8 +7,8 @@ target 'GitHubViewer' do
 
   # Pods for GitHubViewer
 	pod 'SwiftLint'
-	pod 'RxSwift', '~> 6.6'
-  	pod 'RxCocoa', '~> 6.6'
+	pod 'RxSwift'
+  	pod 'RxCocoa'
 
   target 'GitHubViewerTests' do
     inherit! :search_paths

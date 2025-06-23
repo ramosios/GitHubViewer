@@ -8,8 +8,8 @@ PODS:
   - SwiftLint (0.59.1)
 
 DEPENDENCIES:
-  - RxCocoa (~> 6.6)
-  - RxSwift (~> 6.6)
+  - RxCocoa
+  - RxSwift
   - SwiftLint
 
 SPEC REPOS:
@@ -25,6 +25,6 @@ SPEC CHECKSUMS:
   RxSwift: 31649ace6aceeb422e16ff71c60804f9c3281ed9
   SwiftLint: 3d48e2fb2a3468fdaccf049e5e755df22fb40c2c
 
-PODFILE CHECKSUM: 5058abc783611b8438c5d38381f8e9f6feeb7405
+PODFILE CHECKSUM: 8f0ff4a6244b668ee1f765e85036d94268386b33
 
 COCOAPODS: 1.16.2
