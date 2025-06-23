@@ -1,0 +1,73 @@
+included: [ "." ]
+excluded:
+  - Pods
+  - Carthage
+  - fastlane
+  - build
+  - .github
+
+disabled_rules:
+  - force_cast
+  - todo
+  - comma
+
+opt_in_rules:
+  - empty_count
+  - empty_string
+  - fatal_error_message
+  - file_name
+  - first_where
+  - force_unwrapping
+  - modifier_order
+  - toggle_bool
+  - unused_optional_binding
+  - discouraged_optional_boolean
+  - closure_spacing
+  - discouraged_object_literal
+  - prohibited_interface_builder
+
+analyzer_rules:
+  - unused_import
+
+line_length:
+  warning: 150
+  error: 170
+  ignores_comments: true
+  ignores_urls: true
+
+identifier_name:
+  min_length:
+    warning: 3
+    error: 2
+  excluded: [id, URL, x, y, i, j]
+
+type_name:
+  max_length:
+    warning: 40
+    error: 60
+
+function_body_length:
+  warning: 60
+  error: 100
+
+nesting:
+  type_level: 3
+  function_level: 3
+
+file_length:
+  warning: 400
+  error: 800
+
+custom_rules:
+  no_print:
+    name: "No print statements"
+    regex: "print\\("
+    message: "Avoid using print statements in production code"
+    severity: warning
+
+  no_todos:
+    name: "No TODOs"
+    regex: "TODO:"
+    message: "Resolve TODOs before committing"
+    severity: warning
+
