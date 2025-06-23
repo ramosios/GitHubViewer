@@ -6,12 +6,14 @@
 //
 import Foundation
 import RxSwift
+import RxCocoa
 
 class GitHubService {
     private let baseURL = "https://api.github.com"
     private let session: URLSession
     private let decoder: JSONDecoder
-    private let githubToken = "ghp_your_personal_access_token" // Replace with your actual token
+    // Hard Coding Token to simplify running the project for evaluator
+    private let githubToken = "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"
 
     init(session: URLSession = .shared, decoder: JSONDecoder = JSONDecoder()) {
         self.session = session
@@ -80,4 +82,3 @@ class GitHubService {
 enum NetworkError: Error {
     case invalidURL
 }
-
