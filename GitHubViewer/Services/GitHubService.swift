@@ -13,7 +13,9 @@ class GitHubService {
     private let session: URLSession
     private let decoder: JSONDecoder
     // Hard Coding Token to simplify running the project for evaluator
-    private let githubToken = "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"
+    private var githubToken: String {
+        Bundle.main.object(forInfoDictionaryKey: "GitHubToken") as? String ?? ""
+    }
 
     init(session: URLSession = .shared, decoder: JSONDecoder = JSONDecoder()) {
         self.session = session
