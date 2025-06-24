@@ -27,9 +27,10 @@ class GitHubService: GitHubServiceProtocol {
     private let session: URLSession
     private let decoder: JSONDecoder
 
-    /// Retrieves the GitHub token from Info.plist if set.
-    private var githubToken: String {
-        Bundle.main.object(forInfoDictionaryKey: "GitHubToken") as? String ?? ""
+    /// Retrieves the GitHub token from Info.plist if set, else returns nil.
+    private var githubToken: String? {
+        let token = Bundle.main.object(forInfoDictionaryKey: "GitHubToken") as? String
+        return token?.isEmpty == false ? token : nil
     }
 
     init(session: URLSession = .shared, decoder: JSONDecoder = JSONDecoder()) {
@@ -44,8 +45,8 @@ class GitHubService: GitHubServiceProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        if !githubToken.isEmpty {
-            request.addValue("Bearer \(githubToken)", forHTTPHeaderField: "Authorization")
+        if let token = githubToken {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         return request
     }
@@ -125,3 +126,4 @@ enum NetworkError: Error {
     case decoding(Error)
     case server(String)
 }
+
