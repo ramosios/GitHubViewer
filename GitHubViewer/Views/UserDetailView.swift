@@ -5,7 +5,6 @@
 //  Created by Jorge Ramos on 23/06/25.
 //
 import SwiftUI
-import WebKit
 
 struct UserDetailView: View {
     @StateObject private var observable: UserDetailBridge
@@ -17,7 +16,9 @@ struct UserDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: 24) {
+
+                // MARK: - User Info
                 if let user = observable.userDetail {
                     VStack(spacing: 12) {
                         AsyncImage(url: URL(string: user.avatarURL)) { image in
@@ -30,26 +31,35 @@ struct UserDetailView: View {
 
                         Text(user.login)
                             .font(.title2)
-                            .bold()
+                            .fontWeight(.bold)
 
                         if let name = user.name {
-                            Text(name).font(.subheadline)
+                            Text(name)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
                         }
 
-                        HStack {
-                            Text("Followers: \(user.followers)")
-                            Text("Following: \(user.following)")
+                        HStack(spacing: 16) {
+                            Label("\(user.followers)", systemImage: "person.2.fill")
+                            Label("\(user.following)", systemImage: "person.crop.circle.fill.badge.checkmark")
                         }
                         .font(.caption)
+                        .foregroundColor(.gray)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(16)
+                    .shadow(radius: 1)
                 }
 
+                // MARK: - Repositories
                 if !observable.repositories.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 16) {
                         Text("Repositories")
                             .font(.title3)
-                            .bold()
-                            .padding(.top)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal)
 
                         ForEach(observable.repositories, id: \.id) { repo in
                             Button {
@@ -77,19 +87,22 @@ struct UserDetailView: View {
                                     .foregroundColor(.gray)
                                 }
                                 .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color(UIColor.secondarySystemBackground))
-                                .cornerRadius(10)
+                                .cornerRadius(12)
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .padding(.horizontal)
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 } else if observable.isLoading {
                     ProgressView("Loading Repositories...")
+                        .padding()
                 } else {
                     Text("No public repositories found.")
                         .foregroundColor(.gray)
                         .italic()
+                        .padding()
                 }
             }
             .padding()
@@ -104,3 +117,4 @@ struct UserDetailView: View {
 extension URL: Identifiable {
     public var id: String { absoluteString }
 }
+
