@@ -4,16 +4,16 @@
 //
 //  Created by Jorge Ramos on 23/06/25.
 //
-import SwiftUI
+import Combine
 import RxSwift
 import RxCocoa
-import Combine
 
 class UserListBridge: ObservableObject {
     @Published var users: [UserSummary] = []
     @Published var isLoading = false
     @Published var selectedUsername: String?
     @Published var searchText: String = ""
+    @Published var errorMessage: String?
 
     private let viewModel = UserListViewModel()
     private let disposeBag = DisposeBag()
@@ -23,24 +23,41 @@ class UserListBridge: ObservableObject {
         bind()
         observeSearch()
         viewModel.fetchUsers()
+            .subscribe()
+            .disposed(by: disposeBag)
     }
 
     private func bind() {
         viewModel.users
             .subscribe(onNext: { [weak self] users in
-                self?.users = users
+                DispatchQueue.main.async {
+                    self?.users = users
+                }
             })
             .disposed(by: disposeBag)
 
-        viewModel.isLoading
-            .subscribe(onNext: { [weak self] loading in
-                self?.isLoading = loading
+        viewModel.loadingState
+            .subscribe(onNext: { [weak self] state in
+                DispatchQueue.main.async {
+                    switch state {
+                    case .loading:
+                        self?.isLoading = true
+                        self?.errorMessage = nil
+                    case .error(let msg):
+                        self?.isLoading = false
+                        self?.errorMessage = msg
+                    case .idle:
+                        self?.isLoading = false
+                    }
+                }
             })
             .disposed(by: disposeBag)
 
         viewModel.selectedUser
             .subscribe(onNext: { [weak self] username in
-                self?.selectedUsername = username
+                DispatchQueue.main.async {
+                    self?.selectedUsername = username
+                }
             })
             .disposed(by: disposeBag)
     }
@@ -53,6 +70,8 @@ class UserListBridge: ObservableObject {
                 guard let self = self else { return }
                 if text.isEmpty {
                     self.viewModel.fetchUsers()
+                        .subscribe()
+                        .disposed(by: self.disposeBag)
                 }
             }
             .store(in: &cancellables)
@@ -61,6 +80,8 @@ class UserListBridge: ObservableObject {
     func search() {
         if !searchText.isEmpty {
             viewModel.fetchUserByUsername(searchText)
+                .subscribe()
+                .disposed(by: disposeBag)
         }
     }
 

@@ -18,25 +18,41 @@ class UserDetailBridge: ObservableObject {
     init(username: String) {
         bind()
         viewModel.fetchUserDetail(username: username)
+            .subscribe()
+            .disposed(by: disposeBag)
+
         viewModel.fetchRepositories(username: username)
+            .subscribe()
+            .disposed(by: disposeBag)
     }
 
     private func bind() {
         viewModel.userDetail
             .subscribe(onNext: { [weak self] detail in
-                self?.userDetail = detail
-            })
-            .disposed(by: disposeBag)
-
-        viewModel.isLoading
-            .subscribe(onNext: { [weak self] loading in
-                self?.isLoading = loading
+                DispatchQueue.main.async {
+                    self?.userDetail = detail
+                }
             })
             .disposed(by: disposeBag)
 
         viewModel.repositories
             .subscribe(onNext: { [weak self] repos in
-                self?.repositories = repos
+                DispatchQueue.main.async {
+                    self?.repositories = repos
+                }
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.loadingState
+            .subscribe(onNext: { [weak self] state in
+                DispatchQueue.main.async {
+                    switch state {
+                    case .loadingDetail, .loadingRepos:
+                        self?.isLoading = true
+                    default:
+                        self?.isLoading = false
+                    }
+                }
             })
             .disposed(by: disposeBag)
     }

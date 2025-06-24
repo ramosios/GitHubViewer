@@ -8,46 +8,48 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+enum UserListLoadingState {
+    case idle
+    case loading
+    case error(String)
+}
+
 class UserListViewModel {
-    let selectedUser = PublishRelay<String>() // Emits username (login) when selected
+    let selectedUser = PublishRelay<String>()
     private let service = GitHubService()
-    private let disposeBag = DisposeBag()
 
-    // Outputs
     let users = BehaviorRelay<[UserSummary]>(value: [])
-    let isLoading = BehaviorRelay<Bool>(value: false)
-    let error = PublishRelay<String>()
+    let loadingState = BehaviorRelay<UserListLoadingState>(value: .idle)
 
-    func fetchUsers() {
-        isLoading.accept(true)
-        service.fetchUsers()
-            .observe(on: MainScheduler.instance)
-            .subscribe(
+    func fetchUsers() -> Single<[UserSummary]> {
+        loadingState.accept(.loading)
+
+        return service.fetchUsers()
+            .do(
                 onSuccess: { [weak self] users in
                     self?.users.accept(users)
-                    self?.isLoading.accept(false)
+                    self?.loadingState.accept(.idle)
                 },
-                onFailure: { [weak self] error in
-                    self?.error.accept("Failed to fetch users")
-                    self?.isLoading.accept(false)
+                onError: { [weak self] error in
+                    let message = (error as? URLError)?.localizedDescription ?? "Failed to fetch users"
+                    self?.loadingState.accept(.error(message))
                 }
             )
-            .disposed(by: disposeBag)
     }
-    func fetchUserByUsername(_ login: String) {
-        isLoading.accept(true)
-        service.fetchUser(login: login)
-            .observe(on: MainScheduler.instance)
-            .subscribe(
+
+    func fetchUserByUsername(_ login: String) -> Single<UserSummary> {
+        loadingState.accept(.loading)
+
+        return service.fetchUser(login: login)
+            .do(
                 onSuccess: { [weak self] user in
-                    self?.users.accept([user]) // replace list with single result
-                    self?.isLoading.accept(false)
+                    self?.users.accept([user])
+                    self?.loadingState.accept(.idle)
                 },
-                onFailure: { [weak self] _ in
-                    self?.error.accept("User not found")
-                    self?.isLoading.accept(false)
+                onError: { [weak self] error in
+                    let message = (error as? URLError)?.localizedDescription ?? "User not found"
+                    self?.loadingState.accept(.error(message))
                 }
             )
-            .disposed(by: disposeBag)
     }
 }

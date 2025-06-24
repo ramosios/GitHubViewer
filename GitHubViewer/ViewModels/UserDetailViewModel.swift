@@ -4,46 +4,52 @@
 //
 //  Created by Jorge Ramos on 23/06/25.
 //
-import Foundation
 import RxSwift
 import RxCocoa
 
+enum UserDetailLoadingState {
+    case idle
+    case loadingDetail
+    case loadingRepos
+    case error(String)
+}
+
 class UserDetailViewModel {
-    let repositories = BehaviorRelay<[Repository]>(value: [])
     private let service = GitHubService()
-    private let disposeBag = DisposeBag()
 
     let userDetail = BehaviorRelay<UserDetail?>(value: nil)
-    let isLoading = BehaviorRelay<Bool>(value: false)
-    let error = PublishRelay<String>()
+    let repositories = BehaviorRelay<[Repository]>(value: [])
+    let loadingState = BehaviorRelay<UserDetailLoadingState>(value: .idle)
 
-    func fetchUserDetail(username: String) {
-        isLoading.accept(true)
-        service.fetchUserDetail(username: username)
-            .observe(on: MainScheduler.instance)
-            .subscribe(
+    func fetchUserDetail(username: String) -> Single<UserDetail> {
+        loadingState.accept(.loadingDetail)
+
+        return service.fetchUserDetail(username: username)
+            .do(
                 onSuccess: { [weak self] detail in
                     self?.userDetail.accept(detail)
-                    self?.isLoading.accept(false)
+                    self?.loadingState.accept(.idle)
                 },
-                onFailure: { [weak self] err in
-                    self?.error.accept("Failed to load user detail")
-                    self?.isLoading.accept(false)
+                onError: { [weak self] error in
+                    let message = (error as? URLError)?.localizedDescription ?? "Failed to load user detail"
+                    self?.loadingState.accept(.error(message))
                 }
             )
-            .disposed(by: disposeBag)
     }
-    func fetchRepositories(username: String) {
-        service.fetchRepositories(for: username)
-            .observe(on: MainScheduler.instance)
-            .subscribe(
+
+    func fetchRepositories(username: String) -> Single<[Repository]> {
+        loadingState.accept(.loadingRepos)
+
+        return service.fetchRepositories(for: username)
+            .do(
                 onSuccess: { [weak self] repos in
                     self?.repositories.accept(repos)
+                    self?.loadingState.accept(.idle)
                 },
-                onFailure: { [weak self] _ in
-                    self?.error.accept("Failed to load repositories")
+                onError: { [weak self] error in
+                    let message = (error as? URLError)?.localizedDescription ?? "Failed to load repositories"
+                    self?.loadingState.accept(.error(message))
                 }
             )
-            .disposed(by: disposeBag)
     }
 }
