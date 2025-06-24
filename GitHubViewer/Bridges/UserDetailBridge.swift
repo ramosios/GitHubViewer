@@ -10,6 +10,7 @@ import RxCocoa
 class UserDetailBridge: ObservableObject {
     @Published var userDetail: UserDetail?
     @Published var isLoading = false
+    @Published var repositories: [Repository] = []
 
     private let viewModel = UserDetailViewModel()
     private let disposeBag = DisposeBag()
@@ -17,6 +18,7 @@ class UserDetailBridge: ObservableObject {
     init(username: String) {
         bind()
         viewModel.fetchUserDetail(username: username)
+        viewModel.fetchRepositories(username: username)
     }
 
     private func bind() {
@@ -29,6 +31,12 @@ class UserDetailBridge: ObservableObject {
         viewModel.isLoading
             .subscribe(onNext: { [weak self] loading in
                 self?.isLoading = loading
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.repositories
+            .subscribe(onNext: { [weak self] repos in
+                self?.repositories = repos
             })
             .disposed(by: disposeBag)
     }

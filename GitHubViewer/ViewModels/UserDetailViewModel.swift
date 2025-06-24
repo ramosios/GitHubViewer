@@ -9,6 +9,7 @@ import RxSwift
 import RxCocoa
 
 class UserDetailViewModel {
+    let repositories = BehaviorRelay<[Repository]>(value: [])
     private let service = GitHubService()
     private let disposeBag = DisposeBag()
 
@@ -28,6 +29,19 @@ class UserDetailViewModel {
                 onFailure: { [weak self] err in
                     self?.error.accept("Failed to load user detail")
                     self?.isLoading.accept(false)
+                }
+            )
+            .disposed(by: disposeBag)
+    }
+    func fetchRepositories(username: String) {
+        service.fetchRepositories(for: username)
+            .observe(on: MainScheduler.instance)
+            .subscribe(
+                onSuccess: { [weak self] repos in
+                    self?.repositories.accept(repos)
+                },
+                onFailure: { [weak self] _ in
+                    self?.error.accept("Failed to load repositories")
                 }
             )
             .disposed(by: disposeBag)
