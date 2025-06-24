@@ -9,35 +9,51 @@ import XCTest
 
 final class GitHubViewerUITests: XCTestCase {
 
+    private var app: XCUIApplication!
+
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
+        XCUIDevice.shared.orientation = .portrait
+        app = XCUIApplication()
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
 
-    @MainActor
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
+    func testUserListLoadsAndNavigatesToDetail() throws {
+        let firstLogin = app.staticTexts.matching(identifierPrefix: "UserLogin_").firstMatch
+
+        XCTAssertTrue(firstLogin.waitForExistence(timeout: 5), "UserLogin label not found")
+
+        let tapExpectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "hittable == true"),
+            object: firstLogin
+        )
+        XCTAssertEqual(XCTWaiter().wait(for: [tapExpectation], timeout: 5), .completed, "UserLogin label is not hittable")
+
+        firstLogin.tap()
+
+        let detailNavBar = app.navigationBars["User Detail"]
+        XCTAssertTrue(detailNavBar.waitForExistence(timeout: 10), "Navigation bar with title 'User Detail' not found")
+    }
+
+
+    func testSearchUserFlow() throws {
+        XCTContext.runActivity(named: "Search for a username") { _ in
+            let searchField = app.searchFields.firstMatch
+            XCTAssertTrue(searchField.waitForExistence(timeout: 10), "Search field not found")
+            searchField.tap()
+            searchField.typeText("octocat")
         }
+
+        XCTContext.runActivity(named: "Verify search result appears") { _ in
+            let userResult = app.staticTexts.matching(identifierPrefix: "UserLogin_").firstMatch
+            XCTAssertTrue(userResult.waitForExistence(timeout: 15), "Search result did not appear")
+        }
+    }
+}
+
+// MARK: - Helpers
+extension XCUIElementQuery {
+    func matching(identifierPrefix prefix: String) -> XCUIElementQuery {
+        self.matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix))
     }
 }

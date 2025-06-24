@@ -17,6 +17,7 @@ struct UserListView: View {
                     Text(observable.errorMessage ?? "")
                         .foregroundColor(.red)
                         .padding()
+                        .accessibilityIdentifier("ErrorMessage")
                     Spacer()
                 } else {
                     List(observable.users, id: \.id) { user in
@@ -30,11 +31,13 @@ struct UserListView: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 50, height: 50)
                                 .clipShape(Circle())
+                                .accessibilityIdentifier("UserAvatar_\(user.id)")
 
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(user.login)
                                         .font(.headline)
                                         .foregroundColor(.primary)
+                                        .accessibilityIdentifier("UserLogin_\(user.id)")
                                 }
 
                                 Spacer()
@@ -51,11 +54,13 @@ struct UserListView: View {
                                 observable.loadMoreIfNeeded(current: user)
                             }
                         }
+                        .accessibilityIdentifier("UserRow_\(user.id)")
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                     }
                     .listStyle(.plain)
                     .background(Color(UIColor.systemGroupedBackground))
+                    .accessibilityIdentifier("UserList")
                 }
 
                 if let error = observable.errorMessage, !observable.users.isEmpty {
@@ -63,6 +68,7 @@ struct UserListView: View {
                         .foregroundColor(.red)
                         .font(.footnote)
                         .padding(.top, 4)
+                        .accessibilityIdentifier("InlineErrorMessage")
                 }
             }
             .navigationTitle("GitHub Users")
@@ -74,12 +80,14 @@ struct UserListView: View {
                     ProgressView("Loading...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.black.opacity(0.1))
+                        .accessibilityIdentifier("LoadingIndicator")
                 }
             }
             .searchable(text: $observable.searchText, prompt: "Search username")
             .onChange(of: observable.searchText) {
                 observable.search()
             }
+            .accessibilityIdentifier("UserListView")
         }
     }
 }

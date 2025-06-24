@@ -19,17 +19,20 @@ struct UserDetailView: View {
             VStack(spacing: 24) {
                 if let user = observable.userDetail {
                     UserInfoCardView(user: user)
+                        .accessibilityIdentifier("UserInfoCard")
                 }
 
                 if !observable.repositories.isEmpty {
                     RepositoryListView(repositories: observable.repositories) { url in
                         selectedRepoURL = url
                     }
+                    .accessibilityIdentifier("RepositoryList")
                 } else if !observable.isLoading {
                     Text("No public repositories found.")
                         .foregroundColor(.gray)
                         .italic()
                         .padding()
+                        .accessibilityIdentifier("NoRepositoriesMessage")
                 }
 
                 if let error = observable.errorMessage {
@@ -37,13 +40,16 @@ struct UserDetailView: View {
                         .foregroundColor(.red)
                         .font(.footnote)
                         .padding(.top, 4)
+                        .accessibilityIdentifier("DetailErrorMessage")
                 }
             }
             .padding()
+            .accessibilityIdentifier("UserDetailView") // Moved here
         }
         .navigationTitle("User Detail")
         .sheet(item: $selectedRepoURL) { url in
             WebViewer(url: url)
+                .accessibilityIdentifier("WebViewer")
         }
         .overlay {
             if observable.isLoading {
@@ -51,6 +57,7 @@ struct UserDetailView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.black.opacity(0.1))
                     .zIndex(1)
+                    .accessibilityIdentifier("DetailLoadingIndicator")
             }
         }
     }
