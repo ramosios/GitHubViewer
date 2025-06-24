@@ -11,37 +11,56 @@ struct UserListView: View {
 
     var body: some View {
         NavigationStack {
-            List(observable.users, id: \.id) { user in
-                NavigationLink(value: user.login) {
-                    HStack(spacing: 16) {
-                        AsyncImage(url: URL(string: user.avatarURL)) { image in
-                            image.resizable()
-                        } placeholder: {
-                            Circle().fill(Color.gray.opacity(0.3))
-                        }
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
+            VStack {
+                if observable.users.isEmpty && observable.isLoading == false && observable.errorMessage != nil {
+                    Spacer()
+                    Text(observable.errorMessage ?? "")
+                        .foregroundColor(.red)
+                        .padding()
+                    Spacer()
+                } else {
+                    List(observable.users, id: \.id) { user in
+                        NavigationLink(value: user.login) {
+                            HStack(spacing: 16) {
+                                AsyncImage(url: URL(string: user.avatarURL)) { image in
+                                    image.resizable()
+                                } placeholder: {
+                                    Circle().fill(Color.gray.opacity(0.3))
+                                }
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
 
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(user.login)
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                        }
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(user.login)
+                                        .font(.headline)
+                                        .foregroundColor(.primary)
+                                }
 
-                        Spacer()
+                                Spacer()
+                            }
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(UIColor.secondarySystemBackground))
+                                    .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+                            )
+                            .padding(.horizontal)
+                            .padding(.vertical, 4)
+                        }
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                     }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(UIColor.secondarySystemBackground))
-                            .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-                    )
-                    .padding(.horizontal)
-                    .padding(.vertical, 4)
+                    .listStyle(.plain)
+                    .background(Color(UIColor.systemGroupedBackground))
                 }
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
+
+                if let error = observable.errorMessage, !observable.users.isEmpty {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .font(.footnote)
+                        .padding(.top, 4)
+                }
             }
             .navigationTitle("GitHub Users")
             .navigationDestination(for: String.self) { username in
@@ -50,10 +69,10 @@ struct UserListView: View {
             .overlay {
                 if observable.isLoading {
                     ProgressView("Loading...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.black.opacity(0.1))
                 }
             }
-            .listStyle(.plain)
-            .background(Color(UIColor.systemGroupedBackground))
             .searchable(text: $observable.searchText, prompt: "Search username")
             .onSubmit(of: .search, observable.search)
         }

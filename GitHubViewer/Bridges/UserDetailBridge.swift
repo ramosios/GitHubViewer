@@ -11,6 +11,7 @@ class UserDetailBridge: ObservableObject {
     @Published var userDetail: UserDetail?
     @Published var isLoading = false
     @Published var repositories: [Repository] = []
+    @Published var errorMessage: String?
 
     private let viewModel = UserDetailViewModel()
     private let disposeBag = DisposeBag()
