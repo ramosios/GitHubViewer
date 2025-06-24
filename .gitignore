@@ -69,4 +69,4 @@ playground.xcworkspace
 # GitHub Actions (optional)
 .github/workflows/*.log
 
-Info.plist
+
