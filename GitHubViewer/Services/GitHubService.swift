@@ -8,7 +8,14 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class GitHubService {
+protocol GitHubServiceProtocol {
+    func fetchUsers(since: Int, perPage: Int) -> Single<[UserSummary]>
+    func fetchUserDetail(username: String) -> Single<UserDetail>
+    func fetchRepositories(for username: String) -> Single<[Repository]>
+    func fetchUser(login: String) -> Single<UserSummary>
+}
+
+class GitHubService: GitHubServiceProtocol {
     private let baseURL = "https://api.github.com"
     private let session: URLSession
     private let decoder: JSONDecoder

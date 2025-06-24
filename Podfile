@@ -9,6 +9,7 @@ target 'GitHubViewer' do
 	pod 'SwiftLint'
 	pod 'RxSwift'
   	pod 'RxCocoa'
+	pod 'RxBlocking'
 
   target 'GitHubViewerTests' do
     inherit! :search_paths

@@ -2,7 +2,7 @@
 //  GitHubViewerUITests.swift
 //  GitHubViewerUITests
 //
-//  Created by Jorge Ramos on 23/06/25.
+//  Created by Jorge Ramos on 24/06/25.
 //
 
 import XCTest

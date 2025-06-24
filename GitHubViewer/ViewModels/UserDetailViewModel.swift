@@ -7,7 +7,7 @@
 import RxSwift
 import RxCocoa
 
-enum UserDetailLoadingState {
+enum UserDetailLoadingState: Equatable {
     case idle
     case loadingDetail
     case loadingRepos
@@ -15,11 +15,16 @@ enum UserDetailLoadingState {
 }
 
 class UserDetailViewModel {
-    private let service = GitHubService()
+    private let service: GitHubServiceProtocol
 
     let userDetail = BehaviorRelay<UserDetail?>(value: nil)
     let repositories = BehaviorRelay<[Repository]>(value: [])
     let loadingState = BehaviorRelay<UserDetailLoadingState>(value: .idle)
+
+    // Dependency injection initializer
+    init(service: GitHubServiceProtocol = GitHubService()) {
+        self.service = service
+    }
 
     func fetchUserDetail(username: String) -> Single<UserDetail> {
         loadingState.accept(.loadingDetail)

@@ -15,9 +15,8 @@ enum LoadingState {
 }
 
 class UserListViewModel {
-    private let service = GitHubService()
+    private let service: GitHubServiceProtocol
     private let disposeBag = DisposeBag()
-
     let users = BehaviorRelay<[UserSummary]>(value: [])
     let loadingState = BehaviorRelay<LoadingState>(value: .idle)
     let selectedUser = PublishRelay<String>()
@@ -26,6 +25,11 @@ class UserListViewModel {
     private var isFetching = false
     private var lastFetchTime = Date.distantPast
     private let throttleInterval: TimeInterval = 0.75
+
+    // Dependency injection initializer
+    init(service: GitHubServiceProtocol = GitHubService()) {
+        self.service = service
+    }
 
     func fetchUsers(reset: Bool = false) -> Completable {
         let now = Date()
@@ -38,7 +42,7 @@ class UserListViewModel {
         lastFetchTime = now
         loadingState.accept(.loading)
 
-        return service.fetchUsers(since: lastUserID)
+        return service.fetchUsers(since: lastUserID, perPage: 30)
             .do(
                 onSuccess: { [weak self] newUsers in
                     guard let self else { return }
