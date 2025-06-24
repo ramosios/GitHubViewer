@@ -54,6 +54,8 @@ struct UserListView: View {
             }
             .listStyle(.plain)
             .background(Color(UIColor.systemGroupedBackground))
+            .searchable(text: $observable.searchText, prompt: "Search username")
+            .onSubmit(of: .search, observable.search)
         }
     }
 }

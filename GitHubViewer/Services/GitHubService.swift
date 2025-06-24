@@ -79,6 +79,19 @@ class GitHubService {
             }
             .asSingle()
     }
+    func fetchUser(login: String) -> Single<UserSummary> {
+        guard let url = URL(string: "\(baseURL)/users/\(login)") else {
+            return .error(NetworkError.invalidURL)
+        }
+
+        let request = authorizedRequest(url: url)
+
+        return session.rx.data(request: request)
+            .map { [unowned self] data in
+                try self.decoder.decode(UserSummary.self, from: data)
+            }
+            .asSingle()
+    }
 }
 
 enum NetworkError: Error {

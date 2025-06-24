@@ -43,4 +43,3 @@ struct WebViewer: View {
         }
     }
 }
-

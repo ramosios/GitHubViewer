@@ -34,4 +34,20 @@ class UserListViewModel {
             )
             .disposed(by: disposeBag)
     }
+    func fetchUserByUsername(_ login: String) {
+        isLoading.accept(true)
+        service.fetchUser(login: login)
+            .observe(on: MainScheduler.instance)
+            .subscribe(
+                onSuccess: { [weak self] user in
+                    self?.users.accept([user]) // replace list with single result
+                    self?.isLoading.accept(false)
+                },
+                onFailure: { [weak self] _ in
+                    self?.error.accept("User not found")
+                    self?.isLoading.accept(false)
+                }
+            )
+            .disposed(by: disposeBag)
+    }
 }
