@@ -25,7 +25,7 @@ An iOS app for browsing GitHub users and viewing their public repositories. Buil
 
 1. Clone the repo:
 
-   git clone https://github.com/yourusername/GitHubViewer.git
+   git clone https://github.com/ramosios/GitHubViewer
    cd GitHubViewer
 
 2. Install dependencies:
@@ -33,7 +33,7 @@ An iOS app for browsing GitHub users and viewing their public repositories. Buil
    pod install
    open GitHubViewer.xcworkspace
 
-3. (Optional) Add GitHub Token:
+3. (Optional) Replace GitHub Token:
 
    - Open Info.plist
    - Add a key: GitHubToken
