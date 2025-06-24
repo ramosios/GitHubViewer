@@ -12,7 +12,7 @@ struct UserListView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                if observable.users.isEmpty && observable.isLoading == false && observable.errorMessage != nil {
+                if observable.users.isEmpty && !observable.isLoading && observable.errorMessage != nil {
                     Spacer()
                     Text(observable.errorMessage ?? "")
                         .foregroundColor(.red)
@@ -47,6 +47,9 @@ struct UserListView: View {
                             )
                             .padding(.horizontal)
                             .padding(.vertical, 4)
+                            .onAppear {
+                                observable.loadMoreIfNeeded(current: user)
+                            }
                         }
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
@@ -74,7 +77,9 @@ struct UserListView: View {
                 }
             }
             .searchable(text: $observable.searchText, prompt: "Search username")
-            .onSubmit(of: .search, observable.search)
+            .onChange(of: observable.searchText) {
+                observable.search()
+            }
         }
     }
 }
