@@ -4,10 +4,15 @@
 //
 //  Created by Jorge Ramos on 23/06/25.
 //
+//  View model for the GitHub user list screen. Handles paginated user loading,
+//  state management, and username-based lookup using reactive bindings.
+//
+
 import Foundation
 import RxSwift
 import RxCocoa
 
+/// Represents the loading state for the user list.
 enum LoadingState {
     case idle
     case loading
@@ -26,11 +31,14 @@ class UserListViewModel {
     private var lastFetchTime = Date.distantPast
     private let throttleInterval: TimeInterval = 0.75
 
-    // Dependency injection initializer
+    /// Initializes the view model with a GitHub service dependency.
     init(service: GitHubServiceProtocol = GitHubService()) {
         self.service = service
     }
 
+    /// Fetches a paginated list of GitHub users.
+    /// - Parameter reset: If true, clears the current list before loading.
+    /// - Returns: A `Completable` that signals completion or error.
     func fetchUsers(reset: Bool = false) -> Completable {
         let now = Date()
         guard !isFetching, now.timeIntervalSince(lastFetchTime) > throttleInterval else {
@@ -63,6 +71,9 @@ class UserListViewModel {
             .asCompletable()
     }
 
+    /// Fetches a single user by GitHub login name.
+    /// - Parameter login: GitHub username.
+    /// - Returns: A `Completable` indicating success or failure.
     func fetchUserByUsername(_ login: String) -> Completable {
         loadingState.accept(.loading)
         return service.fetchUser(login: login)

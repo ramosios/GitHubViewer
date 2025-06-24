@@ -4,6 +4,10 @@
 //
 //  Created by Jorge Ramos on 23/06/25.
 //
+//  Displays a scrollable and searchable list of GitHub users.
+//  Each item can be tapped to view detailed profile information.
+//
+
 import SwiftUI
 
 struct UserListView: View {
@@ -12,6 +16,7 @@ struct UserListView: View {
     var body: some View {
         NavigationStack {
             VStack {
+                // Show centered error message when no users are loaded
                 if observable.users.isEmpty && !observable.isLoading && observable.errorMessage != nil {
                     Spacer()
                     Text(observable.errorMessage ?? "")
@@ -20,9 +25,11 @@ struct UserListView: View {
                         .accessibilityIdentifier("ErrorMessage")
                     Spacer()
                 } else {
+                    // Main user list
                     List(observable.users, id: \.id) { user in
                         NavigationLink(value: user.login) {
                             HStack(spacing: 16) {
+                                // User avatar
                                 AsyncImage(url: URL(string: user.avatarURL)) { image in
                                     image.resizable()
                                 } placeholder: {
@@ -33,6 +40,7 @@ struct UserListView: View {
                                 .clipShape(Circle())
                                 .accessibilityIdentifier("UserAvatar_\(user.id)")
 
+                                // Username text
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(user.login)
                                         .font(.headline)
@@ -51,6 +59,7 @@ struct UserListView: View {
                             .padding(.horizontal)
                             .padding(.vertical, 4)
                             .onAppear {
+                                // Trigger pagination when the last user appears
                                 observable.loadMoreIfNeeded(current: user)
                             }
                         }
@@ -63,6 +72,7 @@ struct UserListView: View {
                     .accessibilityIdentifier("UserList")
                 }
 
+                // Inline error message (e.g. after a search failure)
                 if let error = observable.errorMessage, !observable.users.isEmpty {
                     Text(error)
                         .foregroundColor(.red)
@@ -72,9 +82,13 @@ struct UserListView: View {
                 }
             }
             .navigationTitle("GitHub Users")
+
+            // Navigate to detail view when a username is selected
             .navigationDestination(for: String.self) { username in
                 UserDetailView(username: username)
             }
+
+            // Global loading spinner overlay
             .overlay {
                 if observable.isLoading {
                     ProgressView("Loading...")
@@ -83,6 +97,8 @@ struct UserListView: View {
                         .accessibilityIdentifier("LoadingIndicator")
                 }
             }
+
+            // Search bar for username filtering
             .searchable(text: $observable.searchText, prompt: "Search username")
             .onChange(of: observable.searchText) {
                 observable.search()

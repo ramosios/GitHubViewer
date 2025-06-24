@@ -4,6 +4,9 @@
 //
 //  Created by Jorge Ramos on 24/06/25.
 //
+//  Unit tests for UserListViewModel using a mock GitHubService.
+//
+
 import Testing
 import XCTest
 import RxBlocking
@@ -20,6 +23,7 @@ final class UserListViewModelTests: XCTestCase {
         viewModel = UserListViewModel(service: mockService)
     }
 
+    /// Verifies users load successfully from the mock service and update observable state.
     func testFetchUsersSuccess() {
         let sampleUser = UserSummary(id: 1, login: "octocat", avatarURL: "url")
         mockService.usersResult = .success([sampleUser])
@@ -30,6 +34,7 @@ final class UserListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.users.value.first?.login, "octocat")
     }
 
+    /// Verifies error state is set correctly when fetching users fails.
     func testFetchUsersFailure() {
         mockService.usersResult = .failure(URLError(.notConnectedToInternet))
 
@@ -42,6 +47,7 @@ final class UserListViewModelTests: XCTestCase {
         }
     }
 
+    /// Verifies user search by username populates user list and clears error.
     func testFetchUserByUsernameSuccess() {
         let user = UserSummary(id: 1, login: "octocat", avatarURL: "url")
         mockService.userByLoginResult = .success(user)
@@ -52,6 +58,7 @@ final class UserListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.users.value.first?.login, "octocat")
     }
 
+    /// Ensures error message is set when username lookup fails.
     func testFetchUserByUsernameFailure() {
         mockService.userByLoginResult = .failure(URLError(.badURL))
 

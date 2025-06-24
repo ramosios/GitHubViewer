@@ -4,9 +4,14 @@
 //
 //  Created by Jorge Ramos on 23/06/25.
 //
+//  View model for the User Detail screen. Handles fetching user profile and
+//  repositories using a reactive pattern via RxSwift.
+//
+
 import RxSwift
 import RxCocoa
 
+/// Represents loading states for user detail or repositories.
 enum UserDetailLoadingState: Equatable {
     case idle
     case loadingDetail
@@ -21,11 +26,17 @@ class UserDetailViewModel {
     let repositories = BehaviorRelay<[Repository]>(value: [])
     let loadingState = BehaviorRelay<UserDetailLoadingState>(value: .idle)
 
-    // Dependency injection initializer
+    /// Initializes the view model with a GitHub service implementation.
+    ///
+    /// - Parameter service: A service conforming to `GitHubServiceProtocol`, defaults to `GitHubService`.
     init(service: GitHubServiceProtocol = GitHubService()) {
         self.service = service
     }
 
+    /// Fetches profile data for the given GitHub username.
+    ///
+    /// - Parameter username: The GitHub username to look up.
+    /// - Returns: A `Single<UserDetail>` that emits the user's detail or an error.
     func fetchUserDetail(username: String) -> Single<UserDetail> {
         loadingState.accept(.loadingDetail)
 
@@ -42,6 +53,10 @@ class UserDetailViewModel {
             )
     }
 
+    /// Fetches non-forked public repositories for the specified user.
+    ///
+    /// - Parameter username: The GitHub username to fetch repositories for.
+    /// - Returns: A `Single<[Repository]>` that emits a list of repositories or an error.
     func fetchRepositories(username: String) -> Single<[Repository]> {
         loadingState.accept(.loadingRepos)
 

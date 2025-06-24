@@ -4,9 +4,14 @@
 //
 //  Created by Jorge Ramos on 23/06/25.
 //
+//  Displays a GitHub repository webpage using WKWebView inside a SwiftUI wrapper.
+//  Includes navigation and share functionality.
+//
+
 import SwiftUI
 import WebKit
 
+/// A `UIViewRepresentable` wrapper for displaying web content using `WKWebView`.
 struct WebView: UIViewRepresentable {
     let url: URL
 
@@ -19,6 +24,8 @@ struct WebView: UIViewRepresentable {
         uiView.load(request)
     }
 }
+
+/// A SwiftUI view presenting a GitHub page with share and dismiss controls.
 struct WebViewer: View {
     let url: URL
     @Environment(\.dismiss) private var dismiss
@@ -29,11 +36,14 @@ struct WebViewer: View {
                 .navigationTitle(url.host ?? "GitHub")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    // Dismiss button
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Done") {
                             dismiss()
                         }
                     }
+
+                    // Share button
                     ToolbarItem(placement: .primaryAction) {
                         ShareLink(item: url) {
                             Image(systemName: "square.and.arrow.up")

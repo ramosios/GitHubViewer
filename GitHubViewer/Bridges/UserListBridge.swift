@@ -4,6 +4,10 @@
 //
 //  Created by Jorge Ramos on 23/06/25.
 //
+//  ObservableObject bridge connecting the UserListViewModel with SwiftUI views.
+//  Manages reactive data flow for GitHub user listing, search, and navigation.
+//
+
 import Foundation
 import RxSwift
 import RxCocoa
@@ -18,14 +22,18 @@ class UserListBridge: ObservableObject {
     private let viewModel = UserListViewModel()
     private let disposeBag = DisposeBag()
 
+    /// Initializes the bridge and immediately fetches the first page of users.
     init() {
         bind()
+
         viewModel.fetchUsers()
             .subscribe()
             .disposed(by: disposeBag)
     }
 
+    /// Binds the outputs of the view model to SwiftUI-friendly Published properties.
     private func bind() {
+        // Bind user list updates
         viewModel.users
             .subscribe(onNext: { [weak self] users in
                 DispatchQueue.main.async {
@@ -34,6 +42,7 @@ class UserListBridge: ObservableObject {
             })
             .disposed(by: disposeBag)
 
+        // Reflect loading and error state changes in the view
         viewModel.loadingState
             .subscribe(onNext: { [weak self] state in
                 DispatchQueue.main.async {
@@ -51,6 +60,7 @@ class UserListBridge: ObservableObject {
             })
             .disposed(by: disposeBag)
 
+        // React to user selection from within the view model
         viewModel.selectedUser
             .subscribe(onNext: { [weak self] username in
                 DispatchQueue.main.async {
@@ -60,6 +70,7 @@ class UserListBridge: ObservableObject {
             .disposed(by: disposeBag)
     }
 
+    /// Triggers a search for the username in `searchText`, or resets the user list if empty.
     func search() {
         let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty {
@@ -73,10 +84,14 @@ class UserListBridge: ObservableObject {
         }
     }
 
+    /// Sends the selected user's login to the view model.
+    /// - Parameter user: The selected `UserSummary`.
     func didSelect(user: UserSummary) {
         viewModel.selectedUser.accept(user.login)
     }
 
+    /// Loads more users if the specified user is the last currently displayed.
+    /// - Parameter user: The user currently being displayed.
     func loadMoreIfNeeded(current user: UserSummary) {
         if let last = users.last, last.id == user.id {
             viewModel.fetchUsers()
